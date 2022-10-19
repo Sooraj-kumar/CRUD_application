@@ -25,8 +25,7 @@ Route::get('edit_student/{id}',[StudentController::class, 'edit'])->name('edit_s
 Route::post('edit_student/{id}',[StudentController::class, 'update'])->name('edit_student_record');
 
 
-Route::get('inactive_student/{id}',[StudentController::class, 'inactive_student'])->name('inactive_student');
-Route::get('active_student/{id}',[StudentController::class, 'active_student'])->name('active_student');
+Route::get('update_status/{id}',[StudentController::class, 'update_status'])->name('update_status');
 
 
 

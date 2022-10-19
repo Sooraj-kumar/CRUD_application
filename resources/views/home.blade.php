@@ -19,7 +19,7 @@
             <div class="float-end mb-5">
                 <a href="{{ route('add_new_student') }}" class="btn btn-dark btn-sm">Add New Student</a>
             </div>
-            <table class="table table-striped">
+            <table class="table table-striped" id="myTable">
                 <thead>
                     <tr>
                         <th scope="col">Image</th>
@@ -51,9 +51,9 @@
                         <td>
                             <a href="{{ route('edit_student',['id'=>$student->id]) }}" class="text-dark p-3"><i class="fa-solid fa-pen-to-square"></i></a>
                             @if ($student->status == 'Active')
-                                <a href="{{ route('inactive_student',['id'=>$student->id]) }}"><i class="fa-solid fa-toggle-on"></i></a>    
+                                <a href="{{ route('update_status',['id'=>$student->id]) }}"><i class="fa-solid fa-toggle-on"></i></a>    
                             @else
-                                <a href="{{ route('active_student',['id'=>$student->id]) }}"><i class="fa-solid fa-toggle-off"></i></a>            
+                                <a href="{{ route('update_status',['id'=>$student->id]) }}"><i class="fa-solid fa-toggle-off"></i></a>            
                             @endif
                         </td>
                     </tr>

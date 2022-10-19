@@ -4,13 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Models\StudentModel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 
 class StudentController extends Controller
 {
+
     public function index(){
         $student = StudentModel::all();
         return view('home',['students'=>$student]);        
     }
+    
     public function store(Request $request){
         $request->validate([
             'full_name'=>'required',
@@ -29,7 +32,7 @@ class StudentController extends Controller
 
         }
         $student->save();
-        return view('home');
+        return redirect('/');
     }
 
     public function edit($id){
@@ -40,38 +43,47 @@ class StudentController extends Controller
 
     public function update(Request $request, $id){
 
+        //fetch record for image destination
         $student = StudentModel::find($id);
-        $student->full_name = $request->full_name;
-        $student->email = $request->email;
-        $student->phone = $request->phone;
-        $student->address = $request->address;
+        //store all fields data in separate variable except token
+        $input = $request->except(['_token']);
 
         if($request->file('profile_image')){
+
+            $old_image_destination = public_path('storage/'.$student->profile_image); 
+            //check if image exists then delete old image
+            if(File::exists($old_image_destination)){
+                File::delete($old_image_destination);
+            }
+            //upload and rename new image
             $file_name = $request->file('profile_image')->hashName();
             $file_path = $request->file('profile_image')->storeAs('profile_images',$file_name,'public');
-            $student['profile_image'] = $file_path;
+            $input['profile_image'] = $file_path;
         }
-        else{
-            unset($request->profile_image);
-        }
-        $student->update();
+        //update all fields with new image destination
+        StudentModel::find($id)
+                    ->update($input);
         
         return redirect('/')->with('success','Student updated successfully');
     }
 
-    public function active_student($id){
-        $inactive_student = StudentModel::find($id);
-        $inactive_student->status = 'Active';
-        $inactive_student->update();
+    public function update_status($id){
+        $student = StudentModel::find($id);
+        $student->status = $student->status == 'Active' ? 'InActive' : 'Active';
+        $student->update();
 
-        return redirect('/')->with('success','Student active successfully');
+        return redirect('/')->with('success','Status updated successfully');
     }
 
-    public function inactive_student($id){
-        $inactive_student = StudentModel::find($id);
-        $inactive_student->status = 'InActive';
+    public function testing($id){
+        try {
+            $student = StudentModel::findOrFail($id);
+            $student->status = $student->status == 'Active' ? 'InActive' : 'Active';
+            $student->save();
 
-        $inactive_student->update();
-        return redirect('/')->with('success','Student Inactive successfully');
+            return response()->json(['message'=>'status has been updated','data'=>$student],200);
+        } catch (\Exception $e) {
+            return response()->json(['message'=>'status has not updated'],422);
+        }        
     }
 }
